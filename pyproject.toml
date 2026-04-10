@@ -1,0 +1,25 @@
+[project]
+name = "devtodo"
+version = "1.0.0"
+description = "Gerenciador de tarefas CLI para desenvolvedores."
+requires-python = ">=3.10"
+dependencies = ["typer>=0.12", "rich>=13.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+devtodo = "devtodo.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
