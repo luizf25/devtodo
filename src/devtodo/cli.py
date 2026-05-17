@@ -1,9 +1,11 @@
 """Interface de linha de comando do devtodo."""
+from datetime import date
+
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from devtodo import __version__, core, storage
+from devtodo import __version__, api, core, storage
 
 app = typer.Typer(help="devtodo — tarefas CLI para devs.")
 console = Console()
@@ -100,6 +102,27 @@ def stats():
 def version():
     """Mostra a versão."""
     console.print(f"devtodo v{__version__}")
+
+
+@app.command()
+def feriados(ano: int = None, pais: str = "BR"):
+    """Lista feriados públicos via API Nager.Date."""
+    ano = ano or date.today().year
+    try:
+        dados = api.listar_feriados(ano, pais)
+    except core.DevtodoError as e:
+        console.print(f"[red]Erro:[/red] {e}")
+        raise typer.Exit(code=1)
+    if not dados:
+        console.print(f"[dim]Sem feriados em {pais.upper()}/{ano}.[/dim]")
+        return
+    tabela = Table(title=f"Feriados {pais.upper()} / {ano}")
+    tabela.add_column("Data")
+    tabela.add_column("Nome local")
+    tabela.add_column("Nome (EN)")
+    for f in dados:
+        tabela.add_row(f.get("date", "-"), f.get("localName", "-"), f.get("name", "-"))
+    console.print(tabela)
 
 
 if __name__ == "__main__":
